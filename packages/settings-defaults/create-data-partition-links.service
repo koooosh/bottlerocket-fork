@@ -1,0 +1,74 @@
+[Unit]
+Description=Create Data Partition Links
+
+# This unit is meant to run automatically and restarting it isn't useful.
+RefuseManualStart=true
+RefuseManualStop=true
+
+# The links created by this service might be required to mount the data
+# partition, so it can't have the default dependencies that ensure that
+# all local filesystems are mounted.
+DefaultDependencies=no
+
+# Try to let udevd finish processing any events.
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+# Don't run if the marker file indicates we've already run.
+ConditionPathExists=!/etc/.device-links-created
+
+[Service]
+Type=oneshot
+
+# This assumes a Nitro instance launch and a Bottlerocket image using the
+# "unified" partition layout. Or else QEMU.
+Environment=DATA_PART_DEV=/dev/nvme0n1p8
+Environment=DATA_PART_DEV_ALT=/dev/vda8
+
+# This is the "preferred" UUID expected by repart-data-preferred.service.
+Environment=DATA_PART_UUID=5b94e8df-28b8-485c-9d19-362263b5944c
+
+# This is the partition label expected by local.mount.
+Environment=DATA_PART_LABEL=BOTTLEROCKET-DATA
+
+# Create a marker file so this unit doesn't run again.
+ExecCondition=/usr/bin/touch /etc/.device-links-created
+
+# Only run if we have one of the expected device nodes.
+ExecCondition=/usr/bin/test \
+  -b ${DATA_PART_DEV} -o \
+  -b ${DATA_PART_DEV_ALT}
+
+# Only run if we are missing one of the expected symlinks.
+ExecCondition=/usr/bin/test \
+  ! -L /dev/disk/by-partuuid/${DATA_PART_UUID} -o \
+  ! -L /dev/disk/by-partlabel/${DATA_PART_LABEL}
+
+ExecStart=-/usr/bin/echo "Inspecting state"
+ExecStart=-/usr/bin/ls -latr /dev/disk/by-partuuid/
+ExecStart=-/usr/bin/ls -latr /dev/disk/by-partlabel/
+ExecStart=-/usr/bin/dmesg --level=warn+
+ExecStart=-/usr/bin/systemctl list-units --type=device --no-block
+
+# Log what we're doing, in case the device is locked for a long time.
+ExecStart=-/usr/bin/echo "Triggering change event for ${DATA_PART_DEV}"
+
+# Lock the device via udev, then open and close it for writing.
+# This should trigger a udev change event.
+ExecStart=-/usr/bin/udevadm lock -d ${DATA_PART_DEV} /usr/bin/touch ${DATA_PART_DEV}
+ExecStart=-/usr/bin/udevadm lock -d ${DATA_PART_DEV_ALT} /usr/bin/touch ${DATA_PART_DEV_ALT}
+
+# Log that we're done.
+ExecStart=-/usr/bin/echo "Triggered change event for ${DATA_PART_DEV} or ${DATA_PART_DEV_ALT}"
+
+# Create a marker file so that the debug console starts.
+ExecStart=-/usr/bin/touch /etc/.debug-console-needed
+
+RemainAfterExit=true
+
+# Log to console.
+StandardOutput=tty
+StandardError=inherit
+
+[Install]
+WantedBy=local-fs.target

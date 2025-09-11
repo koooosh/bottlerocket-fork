@@ -1,0 +1,16 @@
+[Unit]
+Description=Force Reboot
+
+[Service]
+Type=oneshot
+
+ExecStart=systemctl reboot
+
+RemainAfterExit=true
+
+# Log to console.
+StandardOutput=tty
+StandardError=inherit
+
+[Install]
+WantedBy=preconfigured.target

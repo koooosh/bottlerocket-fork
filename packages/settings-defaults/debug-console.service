@@ -1,0 +1,22 @@
+[Unit]
+Description=Debug Console
+DefaultDependencies=no
+After=create-data-partition-links.service
+Wants=create-data-partition-links.service
+
+[Service]
+ExecCondition=/usr/bin/test -e /etc/.debug-console-needed
+ExecStart=-/sbin/agetty -o '-p -- \\u' --keep-baud 115200,57600,38400,9600 - $TERM
+Type=simple
+Restart=always
+StandardInput=tty
+StandardOutput=tty
+StandardError=inherit
+TTYPath=/dev/ttyS0
+TTYReset=yes
+TTYVHangup=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+
+[Install]
+WantedBy=preconfigured.target

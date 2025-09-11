@@ -13,6 +13,10 @@ License: Apache-2.0 OR MIT
 URL: https://github.com/bottlerocket-os/bottlerocket
 BuildRequires: %{_cross_os}glibc-devel
 Requires: %{_cross_os}settings-defaults(any)
+Source100: create-data-partition-links.service
+Source101: force-reboot.service
+Source102: debug-console.service
+Source103: systemd-udev-trigger-debug.conf
 
 %description
 %{summary}.
@@ -321,8 +325,18 @@ do
     "%{buildroot}%{_cross_tmpfilesdir}/storewolf-defaults-${defaults}.conf"
 done
 
+mkdir -p %{buildroot}%{_cross_unitdir}
+install -p -m 0644 %{S:100} %{S:101} %{S:102} %{buildroot}%{_cross_unitdir}
+
+mkdir -p %{buildroot}%{_cross_unitdir}/systemd-udev-trigger.service.d
+install -p -m 0644 %{S:103} %{buildroot}%{_cross_unitdir}/systemd-udev-trigger.service.d/000-debug.conf
+
 %files
 %dir %{_cross_defaultsdir}
+%{_cross_unitdir}/create-data-partition-links.service
+%{_cross_unitdir}/force-reboot.service
+%{_cross_unitdir}/debug-console.service
+%{_cross_unitdir}/systemd-udev-trigger.service.d/000-debug.conf
 
 %files aws-dev
 %{_cross_defaultsdir}/aws-dev.toml
