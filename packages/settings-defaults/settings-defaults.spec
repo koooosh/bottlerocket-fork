@@ -51,6 +51,16 @@ Conflicts: %{_cross_os}settings-defaults(any)
 %description aws-ecs-2-nvidia
 %{summary}.
 
+%package aws-ecs-3
+Summary: Settings defaults for the aws-ecs-3 variant
+Requires: %{_cross_os}variant(aws-ecs-3)
+Provides: %{_cross_os}settings-defaults(any)
+Provides: %{_cross_os}settings-defaults(aws-ecs-3)
+Conflicts: %{_cross_os}settings-defaults(any)
+
+%description aws-ecs-3
+%{summary}. Reuses aws-ecs-2 settings.
+
 %package aws-k8s-1.31
 Summary: Settings defaults for the aws-k8s 1.28 through 1.31 variants
 Requires: (%{shrink:
@@ -335,6 +345,10 @@ done
 %files aws-ecs-2-nvidia
 %{_cross_defaultsdir}/aws-ecs-2-nvidia.toml
 %{_cross_tmpfilesdir}/storewolf-defaults-aws-ecs-2-nvidia.conf
+
+%files aws-ecs-3
+%{_cross_defaultsdir}/aws-ecs-2.toml
+%{_cross_tmpfilesdir}/storewolf-defaults-aws-ecs-2.conf
 
 %files aws-k8s-1.31
 %{_cross_defaultsdir}/aws-k8s-1.31.toml

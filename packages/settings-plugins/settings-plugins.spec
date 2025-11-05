@@ -46,6 +46,16 @@ Conflicts: %{_cross_os}settings-plugin(any)
 %description aws-ecs-2
 %{summary}.
 
+%package aws-ecs-3
+Summary: Settings plugin for the aws-ecs-3 variant
+Requires: %{_cross_os}variant(aws-ecs-3)
+Provides: %{_cross_os}settings-plugin(any)
+Provides: %{_cross_os}settings-plugin(aws-ecs-3)
+Conflicts: %{_cross_os}settings-plugin(any)
+
+%description aws-ecs-3
+%{summary}. Reuses aws-ecs-2 plugin.
+
 %package aws-k8s
 Summary: Settings plugin for the aws-k8s variants
 Requires: %{_cross_os}variant-family(aws-k8s)
@@ -182,6 +192,11 @@ done
 %{_cross_tmpfilesdir}/settings-plugin-aws-dev.conf
 
 %files aws-ecs-2
+%{_cross_pluginsdir}/aws-ecs-2/libsettings.so
+%{_cross_factorydir}%{_cross_sysconfdir}/ld.so.conf.d/aws-ecs-2.conf
+%{_cross_tmpfilesdir}/settings-plugin-aws-ecs-2.conf
+
+%files aws-ecs-3
 %{_cross_pluginsdir}/aws-ecs-2/libsettings.so
 %{_cross_factorydir}%{_cross_sysconfdir}/ld.so.conf.d/aws-ecs-2.conf
 %{_cross_tmpfilesdir}/settings-plugin-aws-ecs-2.conf
